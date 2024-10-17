@@ -96,6 +96,29 @@ final class rewriteTest extends TestCase
         $this->assertSame(trim($expected), trim($postgresql));
     }
 
+    public function test_it_handles_numerics_without_auto_incrment_case_insensitively()
+    {
+        $sql = <<<SQL
+            CREATE TABLE IF NOT EXISTS stars_votes (
+                voter_ip VARCHAR(150) NOT NULL,
+                post_id BIGINT(20) UNSIGNED NOT NULL,
+                rating INT(1) UNSIGNED NOT NULL,
+                PRIMARY KEY  (voter_ip, post_id)
+            )
+        SQL;
+
+        $expected = <<<SQL
+            CREATE TABLE IF NOT EXISTS stars_votes (
+                voter_ip VARCHAR(150) NOT NULL,
+                post_id BIGINT  NOT NULL,
+                rating INT  NOT NULL,
+                PRIMARY KEY  (voter_ip, post_id)
+            );
+        SQL;
+
+        $postgresql = pg4wp_rewrite($sql);
+        $this->assertSame(trim($expected), trim($postgresql));
+    }
 
     public function test_it_handles_keys()
     {
@@ -229,8 +252,8 @@ final class rewriteTest extends TestCase
                 platform varchar(255),
                 version varchar(255),
                 location varchar(10),
-                user_id BIGINT(48) NOT NULL,
-                page_id BIGINT(48) NOT NULL,
+                user_id BIGINT NOT NULL,
+                page_id BIGINT NOT NULL,
                 type VARCHAR(100) NOT NULL,
                 PRIMARY KEY  ( "ID" )
             );
