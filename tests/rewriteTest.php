@@ -710,6 +710,40 @@ final class rewriteTest extends TestCase
         $this->assertSame(trim($expected), trim($postgresql));
     }
 
+    public function test_it_rewrites_0CASTS() 
+    {
+
+        $sql = <<<SQL
+            SELECT   wp_posts.* FROM wp_posts  INNER JOIN wp_postmeta ON ( wp_posts.ID = wp_postmeta.post_id )
+            WHERE 1=1  AND ( 
+                wp_posts.post_date > '2024-07-17 23:59:59'
+            ) AND ( 
+                wp_postmeta.meta_key = 'make_feature_post'
+            ) AND (
+                (wp_posts.post_type = 'announcement' AND (wp_posts.post_status = 'publish' OR wp_posts.post_status = 'acf-disabled' OR wp_posts.post_status = 'private'))
+            )
+            GROUP BY wp_posts.ID
+            ORDER BY wp_postmeta.meta_value+0 DESC, wp_posts.post_date DESC
+    SQL;
+
+    $expected = <<<SQL
+            SELECT   wp_posts.* FROM wp_posts  INNER JOIN wp_postmeta ON ( wp_posts."ID" = wp_postmeta.post_id )
+            WHERE 1=1  AND ( 
+                wp_posts.post_date > '2024-07-17 23:59:59'
+            ) AND ( 
+                wp_postmeta.meta_key = 'make_feature_post'
+            ) AND (
+                (wp_posts.post_type = 'announcement' AND (wp_posts.post_status = 'publish' OR wp_posts.post_status = 'acf-disabled' OR wp_posts.post_status = 'private'))
+            )
+            
+            ORDER BY CAST(wp_postmeta.meta_value AS INTEGER) DESC, wp_posts.post_date DESC
+    SQL;
+
+    $postgresql = pg4wp_rewrite($sql);
+    $this->assertSame(trim($expected), trim($postgresql));
+    }
+
+
 
 
     
