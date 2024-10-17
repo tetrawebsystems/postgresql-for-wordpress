@@ -68,6 +68,8 @@ class SelectSQLRewriter extends AbstractSQLRewriter
         // HANDLE REGEXP
         $sql = preg_replace('/REGEXP/', '~', $sql);
 
+        $sql = str_replace("utc_timestamp()", "CURRENT_TIMESTAMP AT TIME ZONE 'UTC'", $sql);
+
         // In order for users counting to work...
         $matches = array();
         if(preg_match_all('/COUNT[^C]+\),/', $sql, $matches)) {

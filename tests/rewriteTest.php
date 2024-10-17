@@ -757,7 +757,33 @@ final class rewriteTest extends TestCase
         $this->assertSame(trim($expected), trim($postgresql));
     }
 
-    
+    public function test_it_rewrites_utc_timestamp_inserts() 
+    {
+        $sql = <<<SQL
+            INSERT INTO wp_gf_form(title, date_created) VALUES('Test', utc_timestamp())
+        SQL;
+
+        $expected = <<<SQL
+            INSERT INTO wp_gf_form(title, date_created) VALUES('Test', CURRENT_TIMESTAMP AT TIME ZONE 'UTC') RETURNING *
+        SQL;
+
+        $postgresql = pg4wp_rewrite($sql);
+        $this->assertSame(trim($expected), trim($postgresql));
+    }
+
+    public function test_it_rewrites_utc_timestamp_selects() 
+    {
+        $sql = <<<SQL
+            SELECT utc_timestamp()
+        SQL;
+
+        $expected = <<<SQL
+            SELECT CURRENT_TIMESTAMP AT TIME ZONE 'UTC'
+        SQL;
+
+        $postgresql = pg4wp_rewrite($sql);
+        $this->assertSame(trim($expected), trim($postgresql));
+    }
 
     protected function setUp(): void
     {
