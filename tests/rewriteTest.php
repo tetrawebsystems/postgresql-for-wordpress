@@ -702,7 +702,7 @@ final class rewriteTest extends TestCase
                 mysqlcolumn_detail text NOT NULL DEFAULT '',
                 type varchar(210) NOT NULL DEFAULT 'post',
                 item bigint NOT NULL DEFAULT '0',
-                PRIMARY KEY doctermitem (doc, term, item)
+                PRIMARY KEY (doc, term, item)
                 );
         SQL;
 
