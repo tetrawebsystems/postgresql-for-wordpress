@@ -65,6 +65,9 @@ class SelectSQLRewriter extends AbstractSQLRewriter
         // Handle COUNT(*)...ORDER BY...
         $sql = preg_replace('/COUNT(.+)ORDER BY.+/s', 'COUNT$1', $sql);
 
+        // HANDLE REGEXP
+        $sql = preg_replace('/REGEXP/', '~', $sql);
+
         // In order for users counting to work...
         $matches = array();
         if(preg_match_all('/COUNT[^C]+\),/', $sql, $matches)) {
