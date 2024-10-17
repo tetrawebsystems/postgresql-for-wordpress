@@ -46,6 +46,12 @@ class SelectSQLRewriter extends AbstractSQLRewriter
 
         $sql = $this->ensureOrderByInSelect($sql);
 
+        // Handle +0 casting in order by
+        // Regular expression to match the "ORDER BY" pattern
+        $pattern = '/ORDER BY\s+([a-zA-Z0-9_]+)\.meta_value\s*\+\s*0/i';
+        $replacement = 'ORDER BY CAST($1.meta_value AS SIGNED)';
+        $sql = preg_replace($pattern, $replacement, $sql);
+
         // Convert CONVERT to CAST
         $pattern = '/CONVERT\(([^()]*(\(((?>[^()]+)|(?-2))*\))?[^()]*),\s*([^\s]+)\)/x';
         $sql = preg_replace($pattern, 'CAST($1 AS $4)', $sql);
@@ -120,6 +126,8 @@ class SelectSQLRewriter extends AbstractSQLRewriter
         $pattern = '/@@SESSION.sql_mode/';
         $sql = preg_replace($pattern, "''", $sql);
 
+
+        // TODO: this seems wrong but if we remove it we get failures with XYZ is not part of the group By
         if(isset($wpdb)) {
             $sql = str_replace('GROUP BY ' . $wpdb->prefix . 'posts.ID', '', $sql);
         }
