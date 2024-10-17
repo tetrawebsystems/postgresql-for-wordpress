@@ -21,8 +21,8 @@ class CreateTableSQLRewriter extends AbstractSQLRewriter
         ' CHARACTER SET utf8' => '',
         ' DEFAULT CHARSET=utf8' => '',
 
-        // For flash-album-gallery plugin
-        ' tinyint'		=> ' smallint'
+        ' tinyint'		=> ' smallint',
+        ' mediumint'    => ' integer'
     ];
 
     public function rewrite(): string
@@ -96,7 +96,7 @@ class CreateTableSQLRewriter extends AbstractSQLRewriter
         $numeric_types_imploded = implode('|', $numeric_types);
 
         // Prepare regex pattern to match 'type(x)'
-        $pattern = "/(" . $numeric_types_imploded . ")\(\d+\)/";
+        $pattern = "/(" . $numeric_types_imploded . ")\(\d+\)/i";
 
         // Execute type find & replace
         $sql = preg_replace_callback($pattern, function ($matches) {

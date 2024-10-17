@@ -96,6 +96,29 @@ final class rewriteTest extends TestCase
         $this->assertSame(trim($expected), trim($postgresql));
     }
 
+    public function test_it_handles_numerics_without_auto_incrment_case_insensitively()
+    {
+        $sql = <<<SQL
+            CREATE TABLE IF NOT EXISTS stars_votes (
+                voter_ip VARCHAR(150) NOT NULL,
+                post_id BIGINT(20) UNSIGNED NOT NULL,
+                rating INT(1) UNSIGNED NOT NULL,
+                PRIMARY KEY  (voter_ip, post_id)
+            )
+        SQL;
+
+        $expected = <<<SQL
+            CREATE TABLE IF NOT EXISTS stars_votes (
+                voter_ip VARCHAR(150) NOT NULL,
+                post_id BIGINT  NOT NULL,
+                rating INT  NOT NULL,
+                PRIMARY KEY  (voter_ip, post_id)
+            );
+        SQL;
+
+        $postgresql = pg4wp_rewrite($sql);
+        $this->assertSame(trim($expected), trim($postgresql));
+    }
 
     public function test_it_handles_keys()
     {
@@ -229,8 +252,8 @@ final class rewriteTest extends TestCase
                 platform varchar(255),
                 version varchar(255),
                 location varchar(10),
-                user_id BIGINT(48) NOT NULL,
-                page_id BIGINT(48) NOT NULL,
+                user_id BIGINT NOT NULL,
+                page_id BIGINT NOT NULL,
                 type VARCHAR(100) NOT NULL,
                 PRIMARY KEY  ( "ID" )
             );
@@ -630,6 +653,63 @@ final class rewriteTest extends TestCase
         $postgresql = pg4wp_rewrite($sql);
         $this->assertSame(trim($expected), trim($postgresql));
     }
+
+    public function test_it_rewrites_mediumints() 
+    {
+        $sql = <<<SQL
+            CREATE TABLE wp_relevanssi (
+                doc bigint(20) NOT NULL DEFAULT '0',
+                term varchar(50) NOT NULL DEFAULT '0',
+                term_reverse varchar(50) NOT NULL DEFAULT '0',
+                content mediumint(9) NOT NULL DEFAULT '0',
+                title mediumint(9) NOT NULL DEFAULT '0',
+                comment mediumint(9) NOT NULL DEFAULT '0',
+                tag mediumint(9) NOT NULL DEFAULT '0',
+                link mediumint(9) NOT NULL DEFAULT '0',
+                author mediumint(9) NOT NULL DEFAULT '0',
+                category mediumint(9) NOT NULL DEFAULT '0',
+                excerpt mediumint(9) NOT NULL DEFAULT '0',
+                taxonomy mediumint(9) NOT NULL DEFAULT '0',
+                customfield mediumint(9) NOT NULL DEFAULT '0',
+                mysqlcolumn MEDIUMINT(9) NOT NULL DEFAULT '0',
+                taxonomy_detail longtext NOT NULL,
+                customfield_detail longtext NOT NULL DEFAULT '',
+                mysqlcolumn_detail longtext NOT NULL DEFAULT '',
+                type varchar(210) NOT NULL DEFAULT 'post',
+                item bigint(20) NOT NULL DEFAULT '0',
+                PRIMARY KEY doctermitem (doc, term, item)
+                ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_520_ci
+        SQL;
+
+        $expected = <<<SQL
+            CREATE TABLE IF NOT EXISTS wp_relevanssi (
+                doc bigint NOT NULL DEFAULT '0',
+                term varchar(50) NOT NULL DEFAULT '0',
+                term_reverse varchar(50) NOT NULL DEFAULT '0',
+                content integer NOT NULL DEFAULT '0',
+                title integer NOT NULL DEFAULT '0',
+                comment integer NOT NULL DEFAULT '0',
+                tag integer NOT NULL DEFAULT '0',
+                link integer NOT NULL DEFAULT '0',
+                author integer NOT NULL DEFAULT '0',
+                category integer NOT NULL DEFAULT '0',
+                excerpt integer NOT NULL DEFAULT '0',
+                taxonomy integer NOT NULL DEFAULT '0',
+                customfield integer NOT NULL DEFAULT '0',
+                mysqlcolumn integer NOT NULL DEFAULT '0',
+                taxonomy_detail text NOT NULL,
+                customfield_detail text NOT NULL DEFAULT '',
+                mysqlcolumn_detail text NOT NULL DEFAULT '',
+                type varchar(210) NOT NULL DEFAULT 'post',
+                item bigint NOT NULL DEFAULT '0',
+                PRIMARY KEY doctermitem (doc, term, item)
+                );
+        SQL;
+
+        $postgresql = pg4wp_rewrite($sql);
+        $this->assertSame(trim($expected), trim($postgresql));
+    }
+
 
 
     
