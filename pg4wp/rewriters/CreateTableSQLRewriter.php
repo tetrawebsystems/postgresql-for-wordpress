@@ -21,8 +21,8 @@ class CreateTableSQLRewriter extends AbstractSQLRewriter
         ' CHARACTER SET utf8' => '',
         ' DEFAULT CHARSET=utf8' => '',
 
-        // For flash-album-gallery plugin
-        ' tinyint'		=> ' smallint'
+        ' tinyint'		=> ' smallint',
+        ' mediumint'    => ' integer'
     ];
 
     public function rewrite(): string
