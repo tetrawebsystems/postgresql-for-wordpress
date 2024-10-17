@@ -11,6 +11,8 @@ class InsertSQLRewriter extends AbstractSQLRewriter
         // Those are used when we need to set the date to now() in gmt time
         $sql = str_replace("'0000-00-00 00:00:00'", 'now() AT TIME ZONE \'gmt\'', $sql);
 
+        $sql = str_replace("utc_timestamp()", "CURRENT_TIMESTAMP AT TIME ZONE 'UTC'", $sql);
+
         // Multiple values group when calling INSERT INTO don't always work
         if(false !== strpos($sql, $wpdb->options) && false !== strpos($sql, '), (')) {
             $pattern = '/INSERT INTO.+VALUES/';
