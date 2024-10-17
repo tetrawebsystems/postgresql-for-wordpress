@@ -82,8 +82,14 @@ class CreateTableSQLRewriter extends AbstractSQLRewriter
         $sql = preg_replace($pattern, '', $sql);
 
 
+        // Rewrite unique keys to just be UNIQUE without a key name
         $pattern = "/(,\s*)?UNIQUE KEY\s+[a-zA-Z0-9_]+\s+(\([a-zA-Z0-9_,\s]+\))/";
         $replacement = "$1UNIQUE $2";
+        $sql = preg_replace($pattern, $replacement, $sql);
+
+        // Rewrite Primary keys to not have a key name
+        $pattern = '/PRIMARY KEY\s+\w+\s*\((.*?)\)/';
+        $replacement = 'PRIMARY KEY ($1)';
         $sql = preg_replace($pattern, $replacement, $sql);
 
         return $sql;
