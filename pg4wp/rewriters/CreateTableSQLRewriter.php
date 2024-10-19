@@ -150,7 +150,7 @@ class CreateTableSQLRewriter extends AbstractSQLRewriter
             $columnsAndKeys = $matches[3];
             $suffix = ')' . $matches[4];
     
-            $regex = '/(?:^|\s*,\s*)(\b(?:timestamp|date|time|default)\b)\s*(?=\s+\w+)/i'; 
+            $regex = '/(?:^|\s*,\s*)(\b(?:timestamp|date|time|default|end)\b)\s*(?=\s+\w+)/i'; 
 
             // Callback function to add quotes around protected column names
             $callback = function($matches) {
