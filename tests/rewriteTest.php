@@ -785,6 +785,67 @@ final class rewriteTest extends TestCase
         $this->assertSame(trim($expected), trim($postgresql));
     }
 
+    public function test_it_quotes_reserved_columns() 
+    {
+        $sql = <<<SQL
+            CREATE TABLE wp_aioseo_notifications (
+                id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+                slug varchar(13) NOT NULL,
+                title text NOT NULL,
+                content longtext NOT NULL,
+                type varchar(64) NOT NULL,
+                level text NOT NULL,
+                notification_id bigint(20) unsigned DEFAULT NULL,
+                notification_name varchar(255) DEFAULT NULL,
+                start datetime DEFAULT NULL,
+                end datetime DEFAULT NULL,
+                button1_label varchar(255) DEFAULT NULL,
+                button1_action varchar(255) DEFAULT NULL,
+                button2_label varchar(255) DEFAULT NULL,
+                button2_action varchar(255) DEFAULT NULL,
+                dismissed tinyint(1) NOT NULL DEFAULT 0,
+                created datetime NOT NULL,
+                updated datetime NOT NULL,
+                PRIMARY KEY (id),
+                UNIQUE KEY ndx_aioseo_notifications_slug (slug),
+                KEY ndx_aioseo_notifications_dates (start, end),
+                KEY ndx_aioseo_notifications_type (type),
+                KEY ndx_aioseo_notifications_dismissed (dismissed)
+            ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_520_ci;
+        SQL;
+
+        $expected = <<<SQL
+            CREATE TABLE IF NOT EXISTS wp_aioseo_notifications (
+                id bigserial,
+                slug varchar(13) NOT NULL,
+                title text NOT NULL,
+                content text NOT NULL,
+                type varchar(64) NOT NULL,
+                level text NOT NULL,
+                notification_id bigint  DEFAULT NULL,
+                notification_name varchar(255) DEFAULT NULL,
+                start timestamp DEFAULT NULL,
+                "end" timestamp DEFAULT NULL,
+                button1_label varchar(255) DEFAULT NULL,
+                button1_action varchar(255) DEFAULT NULL,
+                button2_label varchar(255) DEFAULT NULL,
+                button2_action varchar(255) DEFAULT NULL,
+                dismissed smallint NOT NULL DEFAULT 0,
+                created timestamp NOT NULL,
+                updated timestamp NOT NULL,
+                PRIMARY KEY (id)
+            );
+        CREATE UNIQUE INDEX IF NOT EXISTS wp_aioseo_notifications_ndx_aioseo_notifications_slug ON wp_aioseo_notifications (slug);
+        CREATE INDEX IF NOT EXISTS wp_aioseo_notifications_ndx_aioseo_notifications_dates ON wp_aioseo_notifications (start, end);
+        CREATE INDEX IF NOT EXISTS wp_aioseo_notifications_ndx_aioseo_notifications_type ON wp_aioseo_notifications (type);
+        CREATE INDEX IF NOT EXISTS wp_aioseo_notifications_ndx_aioseo_notifications_dismissed ON wp_aioseo_notifications (dismissed);
+        SQL;
+
+        $postgresql = pg4wp_rewrite($sql);
+        $this->assertSame(trim($expected), trim($postgresql));
+    }
+   
+
     protected function setUp(): void
     {
         global $wpdb;
