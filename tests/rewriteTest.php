@@ -888,7 +888,7 @@ final class rewriteTest extends TestCase
         SQL;
 
         $expected = <<<SQL
-            SELECT visitor.last_counter::date AS date, COUNT(visitor.id) AS visitors FROM wp_statistics_visitor AS visitor WHERE visitor.last_counter::date BETWEEN '2024-10-13' AND '2024-10-19' GROUP BY visitor.last_counter::date;
+            SELECT visitor.last_counter::date AS date, COUNT(visitor."ID") AS visitors FROM wp_statistics_visitor AS visitor WHERE visitor.last_counter::date BETWEEN '2024-10-13' AND '2024-10-19' GROUP BY visitor.last_counter::date;
         SQL;
 
         $postgresql = pg4wp_rewrite($sql);
@@ -903,7 +903,7 @@ final class rewriteTest extends TestCase
         SQL;
 
         $expected = <<<SQL
-            INSERT INTO wp_statistics_visit (last_visit, last_counter, visit) VALUES ('2024-04-10 19:33:45', '2024-04-10', 1) ON CONFLICT (last_counter) DO UPDATE SET visit = EXCLUDED.visit + 1 RETURNING *
+            INSERT INTO wp_statistics_visit (last_visit, last_counter, visit) VALUES ('2024-04-10 19:33:45', '2024-04-10', 1) ON CONFLICT (last_counter) DO UPDATE SET visit = wp_statistics_visit.visit + 1 RETURNING *  
         SQL;
 
         $postgresql = pg4wp_rewrite($sql);
