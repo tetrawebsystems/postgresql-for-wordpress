@@ -895,6 +895,22 @@ final class rewriteTest extends TestCase
         $this->assertSame(trim($expected), trim($postgresql)); 
     }
 
+
+    public function test_it_correctly_handles_incrementing_conflicts()
+    {
+        $sql = <<<SQL
+            INSERT INTO `wp_statistics_visit` (last_visit, last_counter, visit) VALUES ( '2024-04-10 19:33:45', '2024-04-10', 1) ON DUPLICATE KEY UPDATE visit = visit + 1
+        SQL;
+
+        $expected = <<<SQL
+            INSERT INTO wp_statistics_visit (last_visit, last_counter, visit) VALUES ('2024-04-10 19:33:45', '2024-04-10', 1) ON CONFLICT (last_counter) DO UPDATE SET visit = EXCLUDED.visit + 1 RETURNING *
+        SQL;
+
+        $postgresql = pg4wp_rewrite($sql);
+        $this->assertSame(trim($expected), trim($postgresql)); 
+    }
+
+
     protected function setUp(): void
     {
         global $wpdb;
